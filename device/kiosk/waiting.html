@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Home Display</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0f172a; color: #94a3b8; font: 28px system-ui, sans-serif; cursor: none; }
+  body { display: grid; place-items: center; text-align: center; }
+  b { color: #e5ecf8; }
+</style>
+<div><b>Home Display</b><p id="msg">Connecting…</p></div>
+<script>
+  // Open ?next=<address> as soon as it answers. Retries forever, so the TV recovers from
+  // slow Wi-Fi at boot and from the server restarting.
+  const next = new URLSearchParams(location.search).get("next");
+  let tries = 0;
+  async function check() {
+    try {
+      await fetch(next, { mode: "no-cors", cache: "no-store", signal: AbortSignal.timeout(8000) });
+      location.replace(next);
+    } catch {
+      tries++;
+      document.getElementById("msg").textContent = tries > 3 ? "Waiting for the network…" : "Connecting…";
+      setTimeout(check, 5000);
+    }
+  }
+  next ? check() : (document.getElementById("msg").textContent = "No display address set.");
+</script>

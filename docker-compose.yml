@@ -1,0 +1,23 @@
+# Everything that runs in containers. The kiosk browser, TV control and Wi-Fi live on the Pi
+# itself (device/), because they need the real screen and HDMI port.
+services:
+  app:
+    build: .
+    image: home-display:local
+    container_name: home-display
+    restart: unless-stopped
+    # Host networking lets the app reach the device agent on 127.0.0.1 and be found as <hostname>.local:8080.
+    network_mode: host
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+      PORT: "8080"
+      TZ: ${TZ:-UTC}
+    volumes:
+      - home-display-data:/data
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  home-display-data:
